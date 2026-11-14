@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Highlights</title>
+<meta name="robots" content="noindex">
+<style>
+  :root { --bg: #F6F9F8; --ink: #142120; --muted: #637472; --accent: #1F6F68; --line: #DFE8E6; --on: #F6F9F8; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0E1514; --ink: #E9F1EF; --muted: #93A6A3; --accent: #7CC5BC; --line: #263331; --on: #0E1514; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: flex; background: var(--bg); color: var(--ink);
+         font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { margin: auto; max-width: 560px; padding: 64px 20px; }
+  .studio { font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 40px; }
+  h1 { font: 600 40px/1.1 "New York", Georgia, serif; margin: 0 0 12px; }
+  p { margin: 0 0 16px; }
+  .muted { color: var(--muted); }
+  a { color: var(--accent); }
+  .button { display: inline-block; margin-top: 8px; padding: 13px 22px; border-radius: 12px; background: var(--accent);
+            color: var(--on); font-weight: 600; text-decoration: none; }
+  footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 15px; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+</style>
+</head>
+<body>
+<main>
+  <p class="studio">Tamago Studio</p>
+  <div id="invite" hidden>
+    <h1><span id="who"></span> invited you to Highlights</h1>
+    <p>Highlights is an iPhone app for keeping your favorite photos, beautifully, and sharing them with close friends and family.</p>
+    <p class="muted">If you have Highlights, this link opens their profile in the app. Highlights is in a small test with friends right now, so ask <span id="who2"></span> to add you to the beta.</p>
+    <a class="button" href="/">About Highlights</a>
+  </div>
+  <div id="missing">
+    <h1>Page not found</h1>
+    <p class="muted">That page doesn’t exist.</p>
+    <a class="button" href="/">Go to tamago.studio</a>
+  </div>
+  <footer>
+    <a href="/privacy/">Privacy Policy</a>
+    <a href="/terms/">Terms of Use</a>
+  </footer>
+</main>
+<script>
+  // Invite links look like /u/<username>; GitHub Pages serves this page for them.
+  const match = location.pathname.match(/^\/u\/([a-z0-9._]{3,30})\/?$/i);
+  if (match) {
+    const handle = "@" + match[1].toLowerCase();
+    document.getElementById("who").textContent = handle;
+    document.getElementById("who2").textContent = handle;
+    document.getElementById("invite").hidden = false;
+    document.getElementById("missing").hidden = true;
+    document.title = handle + " invited you to Highlights";
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["5XZ89CDW5B.com.tamagostudio.highlights"],
+        "components": [
+          { "/": "/u/*", "comment": "Invite links open that person's profile in Highlights" }
+        ]
+      }
+    ]
+  }
+}
