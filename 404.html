@@ -19,6 +19,9 @@
   a { color: var(--accent); }
   .button { display: inline-block; margin-top: 8px; padding: 13px 22px; border-radius: 12px; background: var(--accent);
             color: var(--on); font-weight: 600; text-decoration: none; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 8px; }
+  .actions .button { margin-top: 0; }
+  .quiet { color: var(--muted); font-weight: 500; text-decoration: none; }
   footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 15px; display: flex; flex-wrap: wrap; gap: 8px 20px; }
 </style>
 </head>
@@ -28,8 +31,12 @@
   <div id="invite" hidden>
     <h1><span id="who"></span> invited you to Highlights</h1>
     <p>Highlights is an iPhone app for keeping your favorite photos, beautifully, and sharing them with close friends and family.</p>
-    <p class="muted">If you have Highlights, this link opens their profile in the app. Highlights is in a small test with friends right now, so ask <span id="who2"></span> to add you to the beta.</p>
-    <a class="button" href="/">About Highlights</a>
+    <p class="muted">Highlights is in a small test with friends right now, so ask <span id="who2"></span> to add you to the beta. Once it’s installed, come back here and open their profile.</p>
+    <div class="actions">
+      <!-- The app's own scheme: a tamago.studio link tapped on a tamago.studio page stays in Safari. -->
+      <a class="button" id="open" href="/">Open <span id="who3"></span> in Highlights</a>
+      <a class="quiet" href="/">About Highlights</a>
+    </div>
   </div>
   <div id="missing">
     <h1>Page not found</h1>
@@ -48,6 +55,8 @@
     const handle = "@" + match[1].toLowerCase();
     document.getElementById("who").textContent = handle;
     document.getElementById("who2").textContent = handle;
+    document.getElementById("who3").textContent = handle;
+    document.getElementById("open").href = "com.tamagostudio.highlights://u/" + match[1].toLowerCase();
     document.getElementById("invite").hidden = false;
     document.getElementById("missing").hidden = true;
     document.title = handle + " invited you to Highlights";
