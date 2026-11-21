@@ -2,35 +2,278 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tamago Studio</title>
-<meta name="description" content="Tamago Studio makes Highlights, an iPhone app for keeping your favorite photos and sharing them with close friends.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Highlights by Tamago Studio</title>
+<meta name="description" content="Highlights is an iPhone app for photo albums you lay out yourself, shared only with friends you choose. Join the waitlist.">
+<meta property="og:title" content="Highlights">
+<meta property="og:description" content="Your favorite memories, beautifully kept. Coming soon to iPhone.">
 <style>
-  :root { --bg: #F6F9F8; --ink: #142120; --muted: #637472; --accent: #1F6F68; --line: #DFE8E6; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #0E1514; --ink: #E9F1EF; --muted: #93A6A3; --accent: #7CC5BC; --line: #263331; } }
-  * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; display: flex; background: var(--bg); color: var(--ink);
-         font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  main { margin: auto; max-width: 560px; padding: 64px 20px; }
-  .studio { font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 40px; }
-  h1 { font: 600 44px/1.1 "New York", Georgia, serif; margin: 0 0 12px; }
-  p { margin: 0 0 16px; }
-  .muted { color: var(--muted); }
-  a { color: var(--accent); }
-  footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 15px; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+/* Minimal waitlist page (owner decision 2026-11-21): a short promise, the email box, and one
+   picture of the product: a phone that lays out a Highlight, moves a photo, and switches it
+   from Private to Friends, with the app's own wording. */
+:root {
+  --bg: #F6F9F8; --ink: #142120; --muted: #637472; --accent: #1F6F68; --on-accent: #FFFFFF;
+  --line: #DFE8E6; --field: #FFFFFF; --frame: #142120; --error: #A23B2E;
+  --display: "New York", "Iowan Old Style", Georgia, serif;
+  --text: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1514; --ink: #E9F1EF; --muted: #93A6A3; --accent: #7CC5BC; --on-accent: #0E1514;
+  --line: #263331; --field: #16201F; --frame: #2A3735; --error: #E08B7E; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0E1514; --ink: #E9F1EF; --muted: #93A6A3; --accent: #7CC5BC; --on-accent: #0E1514;
+  --line: #263331; --field: #16201F; --frame: #2A3735; --error: #E08B7E; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 var(--text); }
+.wrap { max-width: 1040px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; gap: 56px;
+  padding-block: max(28px, env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.mark { font: 600 22px/1 var(--display); }
+.soon { font-size: 13px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
+
+.hero { flex: 1; display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; }
+.copy { display: grid; gap: 20px; min-width: 0; }
+h1 { font: 600 clamp(40px, 6vw, 64px)/1.04 var(--display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.sub { margin: 0; font-size: 19px; color: var(--muted); max-width: 30em; }
+
+form { display: flex; gap: 8px; flex-wrap: wrap; max-width: 440px; }
+input[type=email] { flex: 1 1 220px; min-width: 0; font: inherit; color: var(--ink); background: var(--field);
+  border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+input[type=email]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.button { font: 600 17px/1 var(--text); background: var(--accent); color: var(--on-accent); border: 0; border-radius: 12px; padding: 14px 20px; cursor: pointer; }
+.button:disabled { opacity: .6; cursor: default; }
+.button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.fine { margin: 0; font-size: 14px; color: var(--muted); }
+.fine a { color: inherit; }
+.done { margin: 0; font-size: 18px; }
+.error { margin: 0; color: var(--error); font-size: 15px; }
+[hidden] { display: none !important; }
+
+/* ── The phone. Colors inside are the app's own light page, in both themes. ── */
+.phone { justify-self: center; width: min(300px, 100%); aspect-ratio: 9 / 19; border-radius: 44px; background: var(--frame); padding: 10px; max-width: 100%; }
+.screen { position: relative; height: 100%; border-radius: 35px; overflow: hidden; background: #FBFDFC; color: #142120; display: flex; flex-direction: column; }
+.cover { position: relative; flex: none; }
+.cover .w { position: absolute; left: 14px; bottom: 12px; color: #FFF; text-shadow: 0 1px 8px rgba(0,0,0,.35); }
+.cover .ct { font: 600 22px/1.1 var(--display); }
+.cover .cd { font-size: 10px; letter-spacing: .14em; }
+.page { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; }
+.page .col { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.note { border-left: 1.5px solid #142120; padding: 1px 0 1px 8px; font-size: 12px; line-height: 1.3; margin: 4px 0; }
+.scene { display: block; width: 100%; height: auto; max-width: 100%; }
+
+.tile { position: relative; transition: transform .7s cubic-bezier(.2,.8,.2,1), opacity .4s ease, box-shadow .3s ease; transition-delay: var(--d, 0s); }
+.screen.s0 .tile { transform: translate(var(--dx), var(--dy)) scale(.35) rotate(var(--r)); opacity: 0; transition: none; }
+.cover .w, .note { transition: opacity .5s ease, transform .5s ease; transition-delay: var(--d, 0s); }
+.screen.s0 .cover .w, .screen.s0 .note, .screen.s1 .note { opacity: 0; transform: translateY(4px); }
+.tile.lifted { z-index: 2; box-shadow: 0 10px 24px rgba(0,0,0,.28); }
+.touch { position: absolute; z-index: 3; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%;
+  background: rgba(255,255,255,.55); border: 1.5px solid rgba(20,33,32,.25); pointer-events: none; opacity: 0;
+  transition: transform .8s cubic-bezier(.45,0,.2,1), opacity .25s ease; }
+
+/* Visibility, as in the app: two choices and the same sentence under them. */
+.share { position: absolute; left: 10px; right: 10px; bottom: 12px; z-index: 4; background: rgba(251,253,252,.94);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border: 1px solid #DFE8E6; border-radius: 18px; padding: 10px; display: grid; gap: 8px;
+  transition: transform .5s cubic-bezier(.2,.8,.2,1), opacity .4s ease; }
+.screen.s0 .share, .screen.s1 .share, .screen.s2 .share { transform: translateY(130%); opacity: 0; }
+.toggle { position: relative; display: grid; grid-template-columns: 1fr 1fr; background: #EAF0EE; border-radius: 999px; padding: 3px; font-size: 12px; font-weight: 600; }
+.toggle span { position: relative; z-index: 1; text-align: center; padding: 6px 0; color: #637472; transition: color .3s; }
+.toggle::before { content: ""; position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); background: #FFF;
+  border-radius: 999px; box-shadow: 0 1px 3px rgba(0,0,0,.12); transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+.toggle .p { color: #142120; }
+.screen.s4 .toggle::before { transform: translateX(100%); }
+.screen.s4 .toggle .p { color: #637472; } .screen.s4 .toggle .f { color: #142120; }
+.who { font-size: 11px; color: #637472; text-align: center; }
+.who .t1, .screen.s4 .who .t0 { display: none; } .screen.s4 .who .t1 { display: inline; }
+
+footer { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--muted); }
+footer a { color: inherit; }
+footer .sp { flex: 1; }
+
+@media (max-width: 760px) {
+  .wrap { gap: 40px; }
+  .hero { grid-template-columns: 1fr; gap: 40px; }
+}
 </style>
 </head>
 <body>
-<main>
-  <p class="studio">Tamago Studio</p>
-  <h1>Highlights</h1>
-  <p>An iPhone app for keeping your favorite photos, beautifully, and sharing them with close friends and family when you choose.</p>
-  <p class="muted">Private by default. No ads, no likes, no algorithm. Currently in a small test with friends.</p>
+<div class="wrap">
+  <header>
+    <span class="mark">Highlights</span>
+    <span class="soon">Coming soon to iPhone</span>
+  </header>
+
+  <main class="hero">
+    <div class="copy">
+      <h1>Your favorite memories, beautifully kept.</h1>
+      <p class="sub">Photo albums you lay out yourself, shared only with friends you choose.</p>
+      <form id="form" novalidate>
+        <label class="trap" for="website">Leave this empty</label>
+        <input class="trap" id="website" name="website" tabindex="-1" autocomplete="off">
+        <label class="trap" for="email">Email address</label>
+        <input type="email" id="email" name="email" placeholder="Your email" autocomplete="email" required>
+        <button class="button" type="submit" id="join">Join the waitlist</button>
+      </form>
+      <p class="error" id="error" role="alert" hidden></p>
+      <p class="done" id="done" role="status" hidden>You’re on the list. We’ll email you when Highlights is ready.</p>
+      <p class="fine" id="fine">One email when it’s ready. Nothing else. <a href="/privacy/#waitlist">Privacy</a></p>
+    </div>
+
+    <div class="phone" role="img" aria-label="A Highlight called Lake weekend: photos arrange themselves into a two-column page with short notes, one photo is moved, then it’s switched from Private to Friends">
+      <div class="screen s4" id="screen">
+        <div class="cover tile" style="--d:0s">
+          <svg class="scene" data-hue="190" viewBox="0 0 100 78"></svg>
+          <div class="w" style="--d:.9s"><div class="ct">Lake weekend</div><div class="cd">08.22 – 08.24.26</div></div>
+        </div>
+        <div class="page">
+          <div class="col">
+            <svg class="scene tile" style="--d:.12s" data-hue="28" viewBox="0 0 100 115"></svg>
+            <p class="note" style="--d:.2s">Colder than it looked</p>
+            <svg class="scene tile" style="--d:.36s" data-hue="150" viewBox="0 0 100 80"></svg>
+          </div>
+          <div class="col">
+            <p class="note" style="--d:.4s">Best bakery in town</p>
+            <svg class="scene tile" style="--d:.24s" data-hue="52" viewBox="0 0 100 90"></svg>
+            <svg class="scene tile" style="--d:.48s" data-hue="340" viewBox="0 0 100 115"></svg>
+          </div>
+        </div>
+        <div class="touch" id="touch"></div>
+        <div class="share">
+          <div class="toggle"><span class="p">🔒 Private</span><span class="f">👥 Friends</span></div>
+          <div class="who"><span class="t0">Only you can see this.</span><span class="t1">Friends who follow you can see this.</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
   <footer>
-    <a href="/privacy/">Privacy Policy</a>
-    <a href="/terms/">Terms of Use</a>
-    <span class="muted">hello@tamago.studio</span>
+    <span>© 2026 Tamago Studio</span>
+    <span class="sp"></span>
+    <a href="/privacy/">Privacy</a>
+    <a href="/terms/">Terms</a>
   </footer>
-</main>
+</div>
+
+<script>
+// Drawn landscapes standing in for photos (the app's SampleScene idea).
+document.querySelectorAll('svg.scene').forEach((svg, i) => {
+  const h = +svg.dataset.hue;
+  const [, , w, ht] = svg.getAttribute('viewBox').split(' ').map(Number);
+  const id = 'sky' + i;
+  const hill = (y, amp, c) =>
+    `<path fill="${c}" d="M0 ${y} C ${w*.25} ${y-amp}, ${w*.5} ${y-amp*.2}, ${w*.7} ${y+amp*.3} S ${w} ${y-amp*.4}, ${w} ${y-amp*.6} L ${w} ${ht} L 0 ${ht} Z"/>`;
+  svg.innerHTML =
+    `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+       <stop offset="0" stop-color="hsl(${h} 75% 82%)"/><stop offset="1" stop-color="hsl(${h + 12} 55% 68%)"/>
+     </linearGradient></defs>
+     <rect width="${w}" height="${ht}" fill="url(#${id})"/>
+     <circle cx="${w*.62}" cy="${ht*.32}" r="${Math.min(w, ht)*.11}" fill="hsl(40 90% 92%)"/>
+     ${hill(ht*.68, ht*.12, `hsl(${h + 200} 12% 45%)`)}
+     ${hill(ht*.82, ht*.08, `hsl(${h + 210} 15% 26%)`)}`;
+});
+
+// The loop, about 9 seconds:
+//   s0 photos in a pile → s1 they settle into the page → s2 title and notes appear,
+//   then a finger drags one photo to trade places with another → s3 the visibility card
+//   slides up on Private → s4 it switches to Friends.
+// Reduce Motion: the finished page on Friends, still.
+const screen = document.getElementById('screen');
+const touch = document.getElementById('touch');
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const frame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+function measurePile() {
+  const sr = screen.getBoundingClientRect();
+  const px = sr.left + sr.width / 2, py = sr.bottom - sr.height * .18;
+  screen.querySelectorAll('.tile').forEach((t, i) => {
+    const r = t.getBoundingClientRect();
+    t.style.setProperty('--dx', (px - (r.left + r.width / 2)) + 'px');
+    t.style.setProperty('--dy', (py - (r.top + r.height / 2)) + 'px');
+    t.style.setProperty('--r', ((i % 2 ? 1 : -1) * (6 + i * 3)) + 'deg');
+  });
+}
+
+// The first photo of the left column trades places with the last of the right column
+// (same shape, so nothing else moves).
+async function swapTwo() {
+  const a = screen.querySelector('.page .col:first-child .tile');
+  const b = screen.querySelector('.page .col:last-child .tile:last-of-type');
+  const sr = screen.getBoundingClientRect(), ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+  const dx = rb.left - ra.left, dy = rb.top - ra.top;
+  touch.style.transition = 'none';
+  touch.style.left = (ra.left - sr.left + ra.width / 2) + 'px';
+  touch.style.top = (ra.top - sr.top + ra.height / 2) + 'px';
+  touch.style.transform = 'none';
+  await frame();
+  touch.style.transition = ''; touch.style.opacity = 1;
+  await wait(250);
+  [a, b].forEach(t => t.style.transitionDelay = '0s');
+  a.classList.add('lifted'); a.style.transform = 'scale(1.05)';
+  await wait(300);
+  a.style.transform = `translate(${dx}px, ${dy}px) scale(1.05)`;
+  b.style.transform = `translate(${-dx}px, ${-dy}px)`;
+  touch.style.transform = `translate(${dx}px, ${dy}px)`;
+  await wait(850);
+  a.classList.remove('lifted'); a.style.transform = `translate(${dx}px, ${dy}px)`;
+  touch.style.opacity = 0;
+  await wait(300);
+  // Make the trade real in the page, without a jump.
+  [a, b].forEach(t => { t.style.transition = 'none'; t.style.transform = ''; });
+  const mark = document.createElement('i');
+  a.replaceWith(mark); b.replaceWith(a); mark.replaceWith(b);
+  await frame();
+  [a, b].forEach(t => { t.style.transition = ''; t.style.transitionDelay = ''; });
+}
+
+async function loop() {
+  for (;;) {
+    screen.className = 'screen s4'; measurePile();
+    screen.className = 'screen s0';
+    await frame(); await wait(400);
+    screen.className = 'screen s1'; await wait(1300);
+    screen.className = 'screen s2'; await wait(900);
+    await swapTwo(); await wait(300);
+    screen.className = 'screen s3'; await wait(1300);
+    screen.className = 'screen s4'; await wait(3400);
+  }
+}
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) loop();
+
+// Waitlist: Supabase join_waitlist(email) (Highlights migration 0015). The publishable key
+// only names the project; this function can add an email and nothing else, and nobody can
+// read the list from here.
+const SUPABASE_URL = 'https://xejechncdulyktphjewq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_pdEwgN5wuNC188tWOhFcpw_bJnhcQq2';
+const form = document.getElementById('form'), errorEl = document.getElementById('error'), join = document.getElementById('join');
+function done() { form.hidden = true; document.getElementById('fine').hidden = true; errorEl.hidden = true; document.getElementById('done').hidden = false; }
+function fail(msg) { errorEl.textContent = msg; errorEl.hidden = false; }
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 254) { fail('Enter an email address like you@example.com.'); return; }
+  if (document.getElementById('website').value) { done(); return; }   // a bot filled the hidden field
+  if (SUPABASE_KEY.startsWith('__')) { done(); return; }              // preview copy: saves nothing
+  join.disabled = true; errorEl.hidden = true;
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/join_waitlist', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_email: email }),
+    });
+    if (res.ok) { done(); return; }
+    const body = await res.json().catch(() => ({}));
+    fail(/invalid_email/.test(body.message || '') ? 'Enter an email address like you@example.com.'
+                                                  : 'That didn’t go through. Try again in a moment.');
+  } catch {
+    fail('That didn’t go through. Check your connection and try again.');
+  } finally {
+    join.disabled = false;
+  }
+});
+</script>
 </body>
 </html>
