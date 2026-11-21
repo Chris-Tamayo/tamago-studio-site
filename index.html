@@ -32,7 +32,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 var(
   padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
 header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .mark { font: 600 22px/1 var(--display); }
-.soon { font-size: 13px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
+.soon { font-size: 13px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; white-space: nowrap; }
 
 .hero { flex: 1; display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; }
 .copy { display: grid; gap: 20px; min-width: 0; }
@@ -94,6 +94,15 @@ footer { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: 
 footer a { color: inherit; }
 footer .sp { flex: 1; }
 
+/* Side by side: the phone shrinks on short screens (13" laptops, iPad landscape) so the
+   whole page fits without scrolling. */
+@media (min-width: 761px) {
+  .phone { width: min(300px, 100%, max(230px, calc((100svh - 230px) * 9 / 19))); }
+}
+@media (max-width: 360px) {
+  .soon { font-size: 12px; padding: 3px 10px; }
+  .mark { font-size: 20px; }
+}
 @media (max-width: 760px) {
   .wrap { gap: 40px; }
   .hero { grid-template-columns: 1fr; gap: 40px; }
